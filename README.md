@@ -62,9 +62,12 @@ PR을 볼 때 주의깊게 봐야할 점이 있으면 작성해 주세요!
 
 오른쪽 초록색 Review changes button 누르기!
 
-![스크린샷 2025-12-09 오후 1.24.29.png](attachment:ed425656-0e7d-48a6-8e40-a238a111d615:스크린샷_2025-12-09_오후_1.24.29.png)
+!<img width="2796" height="1032" alt="image" src="https://github.com/user-attachments/assets/931c345b-6060-4718-8ba9-2049f0f42cfa" />
 
-![스크린샷 2025-12-09 오후 1.28.29.png](attachment:1582704b-27de-43c0-b8e2-c36de8bbf943:스크린샷_2025-12-09_오후_1.28.29.png)
+
+!<img width="1114" height="570" alt="image" src="https://github.com/user-attachments/assets/e1464ee2-a196-45ad-8238-b2060a5a0b4f" />
+
+
 
 **😎 PR Review (Reviewer)**
 
