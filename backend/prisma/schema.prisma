@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -42,6 +36,11 @@ enum Priority {
   URGENT
 }
 
+enum SubTaskStatus {
+  TODO
+  DONE
+}
+
 //////////////////// MODELS ////////////////////
 
 model User {
@@ -49,16 +48,17 @@ model User {
   email           String              @unique
   name            String
   profileImage    String?
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  projectLimit    Int                 @default(5)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
+  ownedProjects   Project[]           @relation("ProjectOwner")
   projects        ProjectMember[]
-  assignedTasks   Task[]             @relation("TaskAssignee")
-  createdTasks    Task[]             @relation("TaskCreator")
+  assignedTasks   Task[]              @relation("TaskAssignee")
+  createdTasks    Task[]              @relation("TaskCreator")
   comments        Comment[]
   authProviders   UserAuthProvider[]
   refreshTokens   RefreshToken[]
-  ownedProjects   Project[]          @relation("ProjectOwner")
 }
 
 model UserAuthProvider {
@@ -67,6 +67,10 @@ model UserAuthProvider {
   provider       String
   providerUserId String
   passwordHash   String?
+
+  accessToken    String?  @db.Text
+  refreshToken   String?  @db.Text
+
   createdAt      DateTime @default(now())
 
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -86,19 +90,27 @@ model RefreshToken {
 }
 
 model Project {
-  id          Int             @id @default(autoincrement())
-  name        String
-  description String?
-  color       String?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id              Int      @id @default(autoincrement())
+  name            String
+  description     String?
+  color           String?
 
-  ownerId     Int
-  owner       User            @relation("ProjectOwner", fields: [ownerId], references: [id])
+  todoCount       Int      @default(0)
+  inProgressCount Int      @default(0)
+  doneCount       Int      @default(0)
+  memberCount     Int      @default(1)
 
-  members     ProjectMember[]
-  tasks       Task[]
-  tags        Tag[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  ownerId         Int
+  owner           User     @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+
+  members         ProjectMember[]
+  tasks           Task[]
+  tags            Tag[]
+
+  @@index([ownerId])
 }
 
 model ProjectMember {
@@ -108,6 +120,7 @@ model ProjectMember {
   role         Role         @default(MEMBER)
   status       MemberStatus @default(INVITED)
   invitationId String?
+  joinedAt     DateTime?
   createdAt    DateTime     @default(now())
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -120,7 +133,8 @@ model Task {
   id          Int        @id @default(autoincrement())
   projectId   Int
   assigneeId  Int?
-  creatorId   Int
+  creatorId   Int?
+  googleEventId String?
 
   title       String
   content     String?    @db.Text
@@ -131,12 +145,14 @@ model Task {
   status      TaskStatus @default(TODO)
   priority    Priority   @default(MEDIUM)
 
+  progress    Int        @default(0)
+
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
   project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   assignee    User?      @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  creator     User       @relation("TaskCreator", fields: [creatorId], references: [id])
+  creator     User?      @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: SetNull)
 
   subTasks    SubTask[]
   comments    Comment[]
@@ -147,17 +163,21 @@ model Task {
   @@index([assigneeId])
   @@index([status])
   @@index([priority])
+  @@index([createdAt])
+  @@index([endDate])
+  @@index([title])
+  @@index([googleEventId])
 }
 
 model SubTask {
-  id        Int        @id @default(autoincrement())
+  id        Int           @id @default(autoincrement())
   taskId    Int
   title     String
-  status    TaskStatus @default(TODO)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  status    SubTaskStatus @default(TODO)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
-  task      Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task      Task          @relation(fields: [taskId], references: [id], onDelete: Cascade)
 }
 
 model Tag {
