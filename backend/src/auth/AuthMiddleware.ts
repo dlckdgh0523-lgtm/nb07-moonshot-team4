@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthUtil } from './auth.util.js';
+import { AuthUtil } from './AuthUtil.js';
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try {

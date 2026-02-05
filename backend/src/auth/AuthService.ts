@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { AuthUtil } from './auth.util.js';
+import { AuthUtil } from './AuthUtil.js';
 
 const prisma = new PrismaClient();
 

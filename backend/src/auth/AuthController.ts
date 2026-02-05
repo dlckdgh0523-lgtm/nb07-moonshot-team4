@@ -1,5 +1,5 @@
 import e, {Request, Response, Router} from 'express';
-import { AuthService } from './auth.service.js';
+import { AuthService } from './AuthService.js';
 
 const router = Router();
 
@@ -101,7 +101,7 @@ googleLogin: (req: Request, res: Response) => {
     res.redirect(googleAuthUrl);
 },
 
-    // 구글 로그인 완료 후 돌아오는 곳
+    // 구글 로그인 완료 후 돌아오는 곳 (추가 작성 필요함.)
 googleCallback: async (req: Request, res: Response) => {
     try{
         const { code } = req.query;
