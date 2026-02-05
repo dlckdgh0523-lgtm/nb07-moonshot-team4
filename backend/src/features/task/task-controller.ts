@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as taskService from './task.service.js';
-import { CreateSubTaskDto, CreateTaskDto, UpdateSubTaskDto, UpdateTaskDto } from './task.dto.js';
+import { CreateSubTaskDto, CreateTaskDto, UpdateSubTaskDto, UpdateTaskDto } from './task-dto.js';
 
 export const createTask = async (req: Request, res: Response) => {
   try {
