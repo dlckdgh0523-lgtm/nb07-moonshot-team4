@@ -1,5 +1,5 @@
-import CrudTaskApi from './task.mapper.js';
-import * as taskRepo from './task.repository.js';
+import CrudTaskApi from './task-mapper.js';
+import * as taskRepo from './task-repository.js';
 import * as projectRepo from '../project/project-repository.js';
 import { CreateSubTaskDto, CreateTaskDto, GetTasksResponseDto, SubTaskDto,toSubTaskDto, TaskDto, UpdateSubTaskDto, UpdateTaskDto } from './task-dto.js';
 import { SubTaskStatus } from '@prisma/client';

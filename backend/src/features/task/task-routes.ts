@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as taskController from './task.controller.js'
+import * as taskController from './task-controller.js'
 const router = Router();
 
 router.get('/projects/:projectId/tasks', taskController.getTasksByProjectId);
