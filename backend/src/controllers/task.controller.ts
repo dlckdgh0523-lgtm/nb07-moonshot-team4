@@ -137,7 +137,7 @@ export async function deleteTask(req: Request, res: Response) {
   }
 }
 
-// ----- SubTask controllers -----
+// 서브테스크 컨트롤러 나중에 create 는 gemini api 연결 할 예정 입니다 . 
 export async function createSubTask(req: Request, res: Response) {
   try {
     if (!req.user) {
