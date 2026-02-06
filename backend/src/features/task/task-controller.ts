@@ -1,6 +1,11 @@
-import { Request, Response } from 'express';
-import * as taskService from './task.service.js';
-import { CreateSubTaskDto, CreateTaskDto, UpdateSubTaskDto, UpdateTaskDto } from './task-dto.js';
+import { Request, Response } from "express";
+import * as taskService from "./task-service.js";
+import {
+  CreateSubTaskDto,
+  CreateTaskDto,
+  UpdateSubTaskDto,
+  UpdateTaskDto,
+} from "./task-dto.js";
 
 export const createTask = async (req: Request, res: Response) => {
   try {
@@ -12,10 +17,13 @@ export const createTask = async (req: Request, res: Response) => {
     const projectId = Number(req.params.projectId);
     const createTaskDto: CreateTaskDto = req.body;
 
-    const result = await taskService.createTask(userId, projectId, createTaskDto);
+    const result = await taskService.createTask(
+      userId,
+      projectId,
+      createTaskDto,
+    );
 
     res.status(200).json(result);
-
   } catch (error: any) {
     console.error(error);
 
@@ -39,19 +47,35 @@ export async function getTasksByProjectId(req: Request, res: Response) {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
 
-    const taskStatus = req.query.status as "todo" | "in_progress" | "done" | undefined;
-    const assigneeId = req.query.assignee ? Number(req.query.assignee) : undefined;
+    const taskStatus = req.query.status as
+      | "todo"
+      | "in_progress"
+      | "done"
+      | undefined;
+    const assigneeId = req.query.assignee
+      ? Number(req.query.assignee)
+      : undefined;
     const keyword = req.query.keyword as string | undefined;
-    const sortOrder = req.query.order as 'asc' | 'desc' | undefined;
-    const sortField = req.query.order_by as 'created_at' | 'name' | 'end_date' | undefined;
+    const sortOrder = req.query.order as "asc" | "desc" | undefined;
+    const sortField = req.query.order_by as
+      | "created_at"
+      | "name"
+      | "end_date"
+      | undefined;
 
-    const result = await taskService.getTasksByProjectId(userId, projectId, page, limit, {
-      status: taskStatus,
-      assigneeId,
-      keyword,
-      order: sortOrder,
-      orderBy: sortField,
-    });
+    const result = await taskService.getTasksByProjectId(
+      userId,
+      projectId,
+      page,
+      limit,
+      {
+        status: taskStatus,
+        assigneeId,
+        keyword,
+        order: sortOrder,
+        orderBy: sortField,
+      },
+    );
 
     res.status(200).json(result);
   } catch (error: any) {
@@ -143,7 +167,11 @@ export async function createSubTask(req: Request, res: Response) {
     const taskId = Number(req.params.taskId);
     const createSubTaskDto: CreateSubTaskDto = req.body;
 
-    const result = await taskService.createSubTask(userId, taskId, createSubTaskDto);
+    const result = await taskService.createSubTask(
+      userId,
+      taskId,
+      createSubTaskDto,
+    );
     res.status(200).json(result);
   } catch (error: any) {
     console.error(error);
@@ -186,7 +214,11 @@ export async function updateSubTask(req: Request, res: Response) {
     const subTaskId = Number(req.params.subTaskId);
     const updateSubTaskDto: UpdateSubTaskDto = req.body;
 
-    const result = await taskService.updateSubTask(userId, subTaskId, updateSubTaskDto);
+    const result = await taskService.updateSubTask(
+      userId,
+      subTaskId,
+      updateSubTaskDto,
+    );
     res.status(200).json(result);
   } catch (error: any) {
     console.error(error);
