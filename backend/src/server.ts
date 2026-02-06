@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import userRouter from './feature/user/user-route.js';
 
 dotenv.config();
 
@@ -13,6 +14,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('🚀 Moonshot backend is running');
 });
+
+app.use('/users', userRouter);
 
 // server start
 app.listen(PORT, () => {

@@ -1,8 +1,9 @@
-import { Prisma } from "@prisma/client"
-import { comparePassword, hashedPassword } from "../utils/hash.js";
+import prisma from "../../lib/prisma.js";
+import { comparePassword, hashedPassword } from "./utils/hash.js";
+import { GetMyTasksQuery } from "./dto/get-my-tasks.query.js";
 
 export const getMe = async (userId: number) => {
-    const user = await Prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
         where: { id: userId },
     })
 
@@ -23,7 +24,7 @@ export const updateMe = async (
         profileImage?: string | null;
     }
 ) => {
-    const user = await Prisma.user.findUnique({ where: { id: userId }});
+    const user = await prisma.user.findUnique({ where: { id: userId }});
     if(!user) {
         throw { status: 404, message: "존재하지 않는 유저입니다."};
     }
@@ -33,7 +34,7 @@ export const updateMe = async (
             throw { status: 400, message: "잘못된 데이터 형식"};
         }
 
-        const auth = await Prisma.userAuthProvider.findFirst({
+        const auth = await prisma.userAuthProvider.findFirst({
             where: { userId, provider: "LOCAL"},
         });
 
@@ -50,7 +51,7 @@ export const updateMe = async (
             throw { status: 401, message: "로그인이 필요합니다"};
         }
 
-        await Prisma.userAuthProvider.update({
+        await prisma.userAuthProvider.update({
             where: { id: auth.id },
             data: {
                 passwordHash: await hashedPassword(body.newPassword),
@@ -58,7 +59,7 @@ export const updateMe = async (
         });
     }
 
-    return Prisma.user.update({
+    return prisma.user.update({
         where: { id: userId },
         data: {
             email: body.email,
@@ -78,7 +79,7 @@ export const getMyProjects = async (
     const skip = (page - 1) * limit;
 
     const [ data, total ] = await Promise.all([
-        Prisma.Project.findMany({
+        prisma.project.findMany({
             where: {
                 members: {
                     some: {userId, status: "ACTIVE"},
@@ -90,7 +91,7 @@ export const getMyProjects = async (
             skip,
             take: limit,
         }),
-        Prisma.Project.count({
+        prisma.project.count({
             where: {
                 members: {
                     some: { userId, status: "ACTIVE"},
@@ -102,7 +103,7 @@ export const getMyProjects = async (
     return { data, total };
 }
 
-export const getMyTasks = async (userId: number, query) => {
+export const getMyTasks = async (userId: number, query: GetMyTasksQuery) => {
     const where: any = {
         project: {
             members: {
@@ -124,7 +125,7 @@ export const getMyTasks = async (userId: number, query) => {
         };
     }
 
-    return Prisma.task.findMany({
+    return prisma.task.findMany({
         where,
         include: {
             assignee: true,
