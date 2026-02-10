@@ -5,13 +5,23 @@ import bcrypt from 'bcrypt';
 export const getMyInfo = async (userId: number) => {
     const getInfo = await prisma.user.findUnique({
         where: {id: userId}
-    })
+    });
+
+    if (!getInfo) {
+        throw new Error('존재하지 않는 유저입니다.');
+    }
+    return getInfo
 };
 
 export const UpdateMyInfo = async (
     userId: number,
     dto: UpdateMyInfoDto
 ) => {
+    const {
+        email,
+        name,
+        profileImage
+    } = dto;
     if (
         (dto.currentPassword && !dto.newPassword) ||
         (!dto.currentPassword && dto.newPassword)
@@ -43,6 +53,16 @@ export const UpdateMyInfo = async (
             data: { passwordHash: newHash }
         });
     }
+
+    const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+            ...(email && { email }),
+            ...(name && { name }),
+            ...(profileImage !== undefined && { profileImage })
+        }
+    });
+    return updatedUser;
 };
 
 export const getMyProjects = async (
