@@ -1,7 +1,7 @@
-import e, {Request, Response, Router} from 'express';
+import e, {Request, Response } from 'express';
 import { AuthService } from './auth-service.js';
 
-const router = Router();
+
 
 // 컨트롤러
 export const AuthController = {
@@ -20,13 +20,17 @@ register: async (req: Request, res: Response) => {
     }
     
     // 서비스 호출
-    const user = await AuthService.signUp(email, name, password);
+    const result = await AuthService.register(email, name, password);
 
     // 성공 응답
     return res.status(201).json({
         status: 'success',
         message: '회원가입에 성공했습니다',
-        data: user,
+        data: {
+            user: result.user,
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken,
+        },
     });
    }catch(error: any) {
     // 에러 처리
@@ -50,12 +54,16 @@ login: async (req: Request, res: Response) => {
             });
         }
 
-        const user = await AuthService.login(email, password);
+        const result = await AuthService.login(email, password);
 
         return res.status(200).json({
             status: 'success',
             message: '로그인에 성공했습니다.',
-            data: user,
+            data: {
+                user: result.user,
+                accessToken: result.accessToken,
+                refreshToken: result.refreshToken,
+            },
         });
     } catch (error: any) {
         return res.status(401).json({
@@ -77,12 +85,15 @@ refresh: async (req: Request, res: Response) => {
             })
         }
 
-        const user = await AuthService.refresh(refreshToken);
+        const result = await AuthService.refresh(refreshToken);
 
         return res.status(200).json({
             status: 'success',
             message: '토큰이 갱신되었습니다.',
-            data: user,
+            data: {
+                accessToken: result.accessToken,
+                refreshToken: result.refreshToken,
+            },
         });
     } catch (error: any) {
         return res.status(401).json({
@@ -94,6 +105,12 @@ refresh: async (req: Request, res: Response) => {
 
     // 구글 로그인
 googleLogin: (req: Request, res: Response) => {
+    // 캘린더 권한 추가 ?
+    const scope = [
+            'https://www.googleapis.com/auth/userinfo.email',
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/calendar' // 캘린더 팀원을 위한 권한
+        ];
     // 구글 인증 화면 URL 생성
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.GOOGLE_REDIRECT_URI}&response_type=code&scope=email%20profile`;
 
@@ -103,33 +120,24 @@ googleLogin: (req: Request, res: Response) => {
 
     // 구글 로그인 완료 후 돌아오는 곳 (추가 작성 필요함.)
 googleCallback: async (req: Request, res: Response) => {
-    try{
-        const { code } = req.query;
+        try {
+            const { code } = req.query;
+            if (!code) throw new Error('인증 코드가 없습니다.');
 
-        if(!code) {
-            throw new Error('인증 코드가 없습니다.');
-        }
+            const result = await AuthService.googleLogin(code as string);
 
-        return res.status(200).json({
-            status: 'success',
-            message: '구글 로그인이 완료되었습니다.',
-            data: {
-                // 유저 정보 및 토큰
-            }
-        });
-    } catch (error: any) {
-        return res.status(500).json({
-            status: 'error',
-            message: error.message,
-        })
+            // 성공 시 결과 데이터를 담아 응답
+            return res.status(200).json({
+                status: 'success',
+                message: '구글 로그인에 성공했습니다.',
+                data: result
+            });
+        } catch (error: any) {
+            console.error('Google Callback Error:', error);
+            return res.status(500).json({
+                status: 'error',
+                message: '구글 로그인 처리 중 오류가 발생했습니다.'
+            });
     }
 }
 }
-
-router.post('/register', AuthController.register);
-router.post('/login', AuthController.login);
-router.post('/refresh', AuthController.refresh);
-router.get('/google', AuthController.googleLogin);
-router.get('/google/callback', AuthController.googleCallback);
-
-export default router;

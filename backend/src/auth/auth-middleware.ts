@@ -11,7 +11,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         if(!token) {
             return res.status(401).json({
                 status: 'error',
-                mesaage: '인증 토큰이 없습니다.',
+                messaage: '인증 토큰이 없습니다.',
             });
         }
 
