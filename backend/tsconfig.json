@@ -20,7 +20,7 @@
 
     /* 타입 검사 수준 */
     "strict": true,
-    "noImplicitAny": true, // false보다는 true로 유지하고 @types/express 설치를 권장합니다.
+    "noImplicitAny": true,
     "esModuleInterop": true
   },
   "include": ["src/**/*"],
