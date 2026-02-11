@@ -1,18 +1,28 @@
 {
   "compilerOptions": {
+    /* 기본 경로 설정 */
     "rootDir": "./src",
     "outDir": "./dist",
 
+    /* 모듈 및 타겟 설정 (ESM 대응) */
+    "target": "ES2020",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "target": "ES2020",
-
+    
+    /* 자바스크립트 및 라이브러리 체크 */
+    "allowJs": true,
+    "skipLibCheck": true,
     "types": ["node"],
 
+    /* 빌드 결과물 관련 */
     "sourceMap": true,
     "declaration": true,
 
+    /* 타입 검사 수준 */
     "strict": true,
-    "skipLibCheck": true
-  }
+    "noImplicitAny": true, // false보다는 true로 유지하고 @types/express 설치를 권장합니다.
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "prisma/seed.ts"]
 }
