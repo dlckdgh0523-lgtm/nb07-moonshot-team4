@@ -7,19 +7,21 @@ const REFRESH_TOKEN_EXPIRES = '14d';
 
 export const AuthUtil = {
     // Access Token 생성 (실제 출입증)
-    generateAccessToken: (userId: string): string => {
-        return jwt.sign({ userId }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES})
+   generateAccessToken: (userId: string | number): string => {
+        const idAsNumber = Number(userId);
+        return jwt.sign({ userId: idAsNumber }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES });
     },
 
     // Refresh Token 생성 (엑세스 토큰 유효 시간이 끝날 때마다 로그인 하기 귀찮음 => 리프래쉬 토큰)
-    generateRefreshToken: (userId: string): string => {
-        return jwt.sign({ userId }, JWT_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES });
+    generateRefreshToken: (userId: string | number): string => {
+        const idAsNumber = Number(userId);
+        return jwt.sign({ userId: idAsNumber }, JWT_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES });
     },
 
     // 토큰 검증
     verifyToken: (token: string) => {
         try {
-            return jwt.verify(token, JWT_SECRET) as { userId: string };
+            return jwt.verify(token, JWT_SECRET) as { userId: number };
         } catch (error: any) {
             return null;
         }

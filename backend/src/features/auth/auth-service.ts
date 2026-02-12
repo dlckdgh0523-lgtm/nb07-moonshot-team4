@@ -86,8 +86,8 @@ export const AuthService = {
 
         // 토큰 발급
         const user = authProvider.user;
-        const accessToken = AuthUtil.generateAccessToken(user.id.toString());
-        const refreshToken = AuthUtil.generateRefreshToken(user.id.toString());
+        const accessToken = AuthUtil.generateAccessToken(user.id);
+        const refreshToken = AuthUtil.generateRefreshToken(user.id);
         return { user, accessToken, refreshToken };
     },
 
@@ -117,7 +117,7 @@ export const AuthService = {
     });
 
     const email = response.data.emailAddresses?.[0].value;
-    const name = response.data.names?.[0].displayName;
+    const nameFromGoogle = response.data.names?.[0].displayName;
 
     if (!email) {
         throw new Error('구글 계정에 등록된 이메일이 없습니다.');
@@ -128,22 +128,17 @@ export const AuthService = {
         // 유저 생성/업데이트
         const savedUser = await tx.user.upsert({
             where: { email: email },
-            update: {},
-            create: { email, name: name || 'Google User' },
+            update: { name: nameFromGoogle || 'Google User' },
+            create: { email, name: nameFromGoogle || 'Google User' },
         });
 
         await tx.userAuthProvider.upsert({
             where: { provider_providerUserId: { provider: 'google', providerUserId: email } },
-            update: {
-                accessToken: tokens.access_token || undefined,
-                refreshToken: tokens.refresh_token || undefined,
-            },
+            update: {},
             create: {
                 userId: savedUser.id, // 위에서 생성된 savedUser의 ID 사용
                 provider: 'google',
                 providerUserId: email,
-                accessToken: tokens.access_token || '',
-                refreshToken: tokens.refresh_token || '',
             },
         });
 
@@ -151,8 +146,8 @@ export const AuthService = {
     }); 
 
     // 우리 서버용 JWT 발급
-    const accessToken = AuthUtil.generateAccessToken(result.id.toString());
-    const refreshToken = AuthUtil.generateRefreshToken(result.id.toString());
+    const accessToken = AuthUtil.generateAccessToken(result.id);
+    const refreshToken = AuthUtil.generateRefreshToken(result.id);
 
     return { user: result, accessToken, refreshToken };
     }
