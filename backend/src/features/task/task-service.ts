@@ -311,7 +311,7 @@ export const createSubTask = async (
 export async function getSubTasksByTaskId(
   userId: number,
   taskId: number,
-): Promise<{ data: SubTaskDto[]; total: number }> {
+): Promise<SubTaskDto[]> {
   const parentTask = await taskRepo.getTaskById(taskId);
   if (!parentTask) {
     throw { status: 404, message: "할 일을 찾을 수 없습니다" };
@@ -327,10 +327,7 @@ export async function getSubTasksByTaskId(
 
   const subTasks = await taskRepo.getSubTasksByTaskId(taskId);
 
-  return {
-    data: subTasks.map((subTask) => toSubTaskDto(subTask)),
-    total: subTasks.length,
-  };
+  return subTasks.map((subTask) => toSubTaskDto(subTask));
 }
 
 export const updateSubTask = async (
@@ -351,13 +348,23 @@ export const updateSubTask = async (
     throw { status: 403, message: "프로젝트 멤버가 아닙니다" };
   }
 
-  const patch: { title?: string } = {};
+  const patch: { title?: string; status?: any } = {};
 
   if (data.title !== undefined) {
     if (data.title.trim() === "") {
       throw { status: 400, message: "잘못된 요청 형식" };
     }
     patch.title = data.title;
+  }
+
+  if (data.status !== undefined) {
+    const statusMap: { [key: string]: string } = {
+      todo: "TODO",
+      in_progress: "IN_PROGRESS",
+      done: "DONE",
+    };
+
+    patch.status = statusMap[data.status];
   }
 
   const updated = await taskRepo.updateSubTask(subTaskId, patch);

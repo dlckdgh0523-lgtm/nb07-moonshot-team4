@@ -13,7 +13,7 @@ export interface TaskDto {
   assignee: { id: number; name: string; email: string; profileImage: string } | null;
   tags: { id: number; name: string }[];
   attachments: string[];
-  subTasks?: { id: number; title: string; status: 'todo' | 'done' }[];
+  subTasks?: { id: number; title: string; status: 'todo' | 'in_progress' | 'done' }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -61,6 +61,7 @@ export interface CreateSubTaskDto {
 
 export interface UpdateSubTaskDto {
   title?: string;
+  status?: 'todo' | 'in_progress' | 'done';
 }
 
 export interface GetSubTasksResponseDto {
