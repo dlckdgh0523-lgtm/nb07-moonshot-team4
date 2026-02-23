@@ -50,7 +50,7 @@ export const register = async (payload: {
   profileImage: string | null;
 }) => {
   try {
-    const response = await axios.post('/auth/register', payload);
+   const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, payload);
     return response.data;
   } catch (error) {
     logError(error);
