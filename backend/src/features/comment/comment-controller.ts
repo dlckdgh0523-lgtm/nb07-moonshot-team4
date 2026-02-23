@@ -53,28 +53,21 @@ export const getCommentsByTask = async (req: Request, res: Response) => {
   const { taskId } = req.params;
 
   try {
-    // 1. 댓글 데이터와 전체 개수를 동시에 가져옵니다.
-    const [comments, total] = await prisma.$transaction([
-      prisma.comment.findMany({
-        where: { taskId: Number(taskId) },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              profileImage: true,
-            },
+    const comments = await prisma.comment.findMany({
+      where: { taskId: Number(taskId) },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profileImage: true,
           },
         },
-        orderBy: { createdAt: "desc" }, // 최신순 정렬
-      }),
-      prisma.comment.count({
-        where: { taskId: Number(taskId) },
-      }),
-    ]);
+      },
+      orderBy: { createdAt: "desc" },
+    });
 
-    // 2. 요구사항 스펙에 맞게 데이터 가공 (userId 제외 및 user -> author)
     const formattedData = comments.map(
       ({ userId: _, user: author, ...commentData }) => ({
         ...commentData,
@@ -82,11 +75,7 @@ export const getCommentsByTask = async (req: Request, res: Response) => {
       }),
     );
 
-    // 3. 최종 응답 구조: { data: [...], total: number }
-    res.status(200).json({
-      data: formattedData,
-      total,
-    });
+    res.status(200).json(formattedData);
   } catch (error) {
     res.status(500).json({ message: "조회 실패", error });
   }

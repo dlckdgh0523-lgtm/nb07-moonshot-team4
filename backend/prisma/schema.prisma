@@ -137,7 +137,7 @@ model Task {
   googleEventId String?
 
   title   String
-  content String? @db.Text
+  description String? @db.Text
 
   startDate DateTime?
   endDate   DateTime?

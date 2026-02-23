@@ -1,6 +1,7 @@
 import prisma from "../../shared/utils/prisma.js";
 import { UpdateMyInfoDto } from "./user-dto.js";
 import bcrypt from 'bcrypt';
+import CrudTaskApi from "../task/task-mapper.js";
 
 export const getMyInfo = async (userId: number) => {
     const getInfo = await prisma.user.findUnique({
@@ -120,7 +121,7 @@ export const getMyTodos = async (
         keyword
     } = query;
 
-    return prisma.task.findMany({
+    const tasks = await prisma.task.findMany({
         where: {
             project: {
                 members: {
@@ -154,8 +155,20 @@ export const getMyTodos = async (
                 }
             })
         },
+        include: {
+            assignee: true,
+            tags: {
+                include: {
+                    tag: true
+                }
+            },
+            attachments: true,
+            subTasks: true
+        },
         orderBy: {
             createdAt: 'desc'
         }
     });
+
+    return tasks.map(task => CrudTaskApi(task));
 };
